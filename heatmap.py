@@ -90,10 +90,10 @@ logit = net(img_variable)
 h_x = F.softmax(logit, dim=1).data.squeeze()
 # 对分类的预测类别分数排序，输出预测值和在列表中的位置
 idx = 1
-probs = h_x[1]
+prob = h_x[1]
 
 # 转换数据类型
-probs = probs.numpy()
+prob = prob.numpy()
 idx = np.array(idx)
 
 # 输出与图片尺寸一致的CAM图片
@@ -105,8 +105,10 @@ print("output CAM.jpg")
 
 img = cv2.imread(image_path)
 height, width, _ = img.shape
-# 生成热力图
+# 生成热力图(single image)
 heatmap = cv2.applyColorMap(cv2.resize(CAMs[0], (width, height)), cv2.COLORMAP_JET)
+# # 生成热力图(for different images)
+# heatmap = cv2.applyColorMap(cv2.resize(CAMs[0] * prob, (width, height)), cv2.COLORMAP_JET)
 result = cv2.addWeighted(img, 0.3, heatmap, 0.5, 0)
 # cv2.imwrite('Heatmap.jpg', heatmap)
 cv2.imwrite('CAM.jpg', result)
