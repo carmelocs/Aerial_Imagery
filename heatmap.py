@@ -39,7 +39,7 @@ net._modules.get(finalconv_name).register_forward_hook(hook_feature)
 params = list(net.parameters()) # 将参数变换为列表
 weight_softmax = np.squeeze(params[-2].data.numpy()) # 提取softmax层的参数
 
-def returnCAM(feature_conv, weight_softmax, class_idx):
+def returnCAM(feature_conv, weight_softmax, class_idx, positive_prob):
     # generate the class activation maps upsample to 256x256
     size_upsample = (UPSAMPLE_SIZE, UPSAMPLE_SIZE)
     bc, nc, h, w = feature_conv.shape
@@ -59,7 +59,7 @@ def returnCAM(feature_conv, weight_softmax, class_idx):
 			
 		# 转换为图片255的数据
         # np.uint8() Create a data type object.
-        cam_img = np.uint8(255 * cam_img)
+        cam_img = np.uint8(255 * cam_img * positive_prob)
 
 		# resize 图片尺寸与输入图片一致
         output_cam.append(cv2.resize(cam_img, size_upsample))
@@ -98,7 +98,7 @@ idx = np.array(idx)
 
 # 输出与图片尺寸一致的CAM图片
 # generate class activation mapping for the positive prediction, i.e., idx equals 1
-CAMs = returnCAM(features_blobs[0], weight_softmax, [idx])
+CAMs = returnCAM(features_blobs[0], weight_softmax, [idx], prob)
 
 # render the CAM and output
 print("output CAM.jpg")
@@ -110,5 +110,5 @@ heatmap = cv2.applyColorMap(cv2.resize(CAMs[0], (width, height)), cv2.COLORMAP_J
 # # 生成热力图(for different images)
 # heatmap = cv2.applyColorMap(cv2.resize(CAMs[0] * prob, (width, height)), cv2.COLORMAP_JET)
 result = cv2.addWeighted(img, 0.3, heatmap, 0.5, 0)
-# cv2.imwrite('Heatmap.jpg', heatmap)
+cv2.imwrite('Heatmap.jpg', heatmap)
 cv2.imwrite('CAM.jpg', result)
