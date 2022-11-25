@@ -1,6 +1,6 @@
 *.jpg
 *png
 *.pt
-test.ipynb
+test.*
 *.pkl
 __pycache__
