@@ -11,6 +11,7 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("--image_path", help="location of image")
 # parser.add_argument("--outdir", help="CAM images are stored in this folder")
+parser.add_argument()
 args = parser.parse_args()
 
 image_path = args.image_path
@@ -79,7 +80,7 @@ preprocess = transforms.Compose([
 ])
 
 img_pil = Image.open(image_path)
-img_pil.save('test.jpg')
+img_pil.save('test_cam.jpg')
 # 将图片数据处理成所需要的可用数据 tensor
 img_tensor = preprocess(img_pil)
 # 处理图片为Variable数据
@@ -110,5 +111,5 @@ heatmap = cv2.applyColorMap(cv2.resize(CAMs[0], (width, height)), cv2.COLORMAP_J
 # # 生成热力图(for different images)
 # heatmap = cv2.applyColorMap(cv2.resize(CAMs[0] * prob, (width, height)), cv2.COLORMAP_JET)
 result = cv2.addWeighted(img, 0.3, heatmap, 0.5, 0)
-cv2.imwrite('Heatmap.jpg', heatmap)
+cv2.imwrite('heatmap_cam.jpg', heatmap)
 cv2.imwrite('CAM.jpg', result)
