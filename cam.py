@@ -11,7 +11,6 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("--image_path", help="location of image")
 # parser.add_argument("--outdir", help="CAM images are stored in this folder")
-parser.add_argument()
 args = parser.parse_args()
 
 image_path = args.image_path

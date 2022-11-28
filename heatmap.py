@@ -15,6 +15,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--image_path", help="location of image")
 # parser.add_argument("--outdir", help="CAM images are stored in this folder")
 parser.add_argument("--crop_size", type=int, help="size to crop in original image")
+parser.add_argument("--step", type=int, help="size to crop in original image")
 args = parser.parse_args()
 
 image_path = args.image_path
@@ -23,6 +24,7 @@ DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print(f"Using {DEVICE}...")
 
 CROP_SIZE = args.crop_size
+STEP = args.step
 
 image_pil = Image.open(image_path)
 image_pil.save('test_heatmap.jpg')
@@ -36,22 +38,22 @@ net.fc = nn.Linear(net.fc.in_features, 2)
 net.load_state_dict(torch.load("./best_model_resnet18.pt", map_location=DEVICE))
 net.eval()
 
-img = np.zeros((width, height), dtype=np.uint8)
+img = np.zeros((height + CROP_SIZE, width + CROP_SIZE), dtype=np.float32)
 
 preprocess = transforms.ToTensor()
 
-for cx in tqdm(range(0, int(width - CROP_SIZE/2), 1)):
-    for cy in range(0, int(height - CROP_SIZE/2), 1):
+for cx in tqdm(range(0, height, 30)):
+    for cy in range(0, width, 30):
         image_crop = crop(image_pil, cx, cy, CROP_SIZE, CROP_SIZE)
-        logit = net(preprocess(image_crop).unsqueeze(0))
+        logit = net(preprocess(image_crop).unsqueeze(0).to(DEVICE))
         h_x = F.softmax(logit, dim=1).data.squeeze()
         prob = h_x[1].item()
-        pixel = int(prob * 255)
-        img[int(cx + CROP_SIZE/2)][int(cy + CROP_SIZE/2)] = pixel
+        img[cx : cx + CROP_SIZE, cy : cy + CROP_SIZE] += prob
         
 print("output heatmap.jpg")
 
-img_crop = img[int(CROP_SIZE/2):, int(CROP_SIZE/2):]
+img_crop = img[:-CROP_SIZE, :-CROP_SIZE]
+img_crop = np.uint8(img_crop/img_crop.max() * 255)
 
 cam = cv2.resize(img_crop, (width, height))
 heatmap = cv2.applyColorMap(cv2.resize(cam, (width, height)), cv2.COLORMAP_JET)
