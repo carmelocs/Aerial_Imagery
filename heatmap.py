@@ -9,6 +9,7 @@ import torch.nn.functional as F
 import argparse
 import matplotlib.pyplot as plt 
 from torchvision.transforms.functional import crop
+from tqdm import tqdm
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--image_path", help="location of image")
@@ -39,7 +40,7 @@ img = np.zeros((width, height), dtype=np.uint8)
 
 preprocess = transforms.ToTensor()
 
-for cx in range(0, int(width - CROP_SIZE/2), 1):
+for cx in tqdm(range(0, int(width - CROP_SIZE/2), 1)):
     for cy in range(0, int(height - CROP_SIZE/2), 1):
         image_crop = crop(image_pil, cx, cy, CROP_SIZE, CROP_SIZE)
         logit = net(preprocess(image_crop).unsqueeze(0))
