@@ -18,7 +18,7 @@ parser = argparse.ArgumentParser()
 # parser.add_argument("--image_path", help="location of image")
 # parser.add_argument("--outdir", help="CAM images are stored in this folder")
 parser.add_argument("--crop_size", type=int, help="size to crop in original image", default=224)
-parser.add_argument("--step", type=int, help="size to crop in original image", default=60)
+parser.add_argument("--step", type=int, help="size to crop in original image", default=30)
 parser.add_argument("--file_name", help="file name of image")
 
 args = parser.parse_args()
