@@ -4,3 +4,4 @@
 test.*
 *.pkl
 __pycache__
+environment.*
