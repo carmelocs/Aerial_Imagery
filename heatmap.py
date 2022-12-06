@@ -19,6 +19,7 @@ parser = argparse.ArgumentParser()
 # parser.add_argument("--outdir", help="CAM images are stored in this folder")
 parser.add_argument("--crop_size", type=int, help="size to crop in original image", default=224)
 parser.add_argument("--step", type=int, help="size to crop in original image", default=30)
+parser.add_argument("--resize", type=int, help="size to compress original image", default=1)
 parser.add_argument("--file_name", help="file name of image")
 
 args = parser.parse_args()
@@ -33,6 +34,7 @@ print(f"Using {DEVICE}...")
 
 CROP_SIZE = args.crop_size
 STEP = args.step
+RESIZE = args.resize
 
 image_pil = Image.open(image_path)
 # image_pil.save('test_heatmap.jpg')
@@ -71,4 +73,12 @@ heatmap = cv2.applyColorMap(cv2.resize(cam, (width, height)), cv2.COLORMAP_JET)
 image_cv = cv2.imread(image_path)
 result = cv2.addWeighted(image_cv, 0.5, heatmap, 0.3, 0)
 # cv2.imwrite('heatmap.jpg', heatmap)
-cv2.imwrite(file_dir + file_name[:-4] + '_result.jpg', result)
+
+
+if (RESIZE == 1):
+    cv2.imwrite(file_dir + file_name[:-4] + '_result.jpg', result)
+else:
+    width_resize, height_resize = int(width/RESIZE), int(height/RESIZE)
+    image_resize = cv2.resize(result, (width_resize, height_resize))
+    cv2.imwrite(file_dir + file_name[:-4] + "_resize.jpg", image_resize)
+    print(f"Resized heatmap width: {width_resize} \nheight: {height_resize}")
